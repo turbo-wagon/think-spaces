@@ -1,5 +1,3 @@
-
-
 ## 🧭 Overview
 
 **Think Spaces** is a personal cognitive platform for exploring ideas through intelligent, multimodal "rooms."  
@@ -39,27 +37,24 @@ The system evolves with you over time, building memory and insight unique to eac
 
 ## ✨ Design Principles
 
-| Principle | Description |
-|------------|--------------|
-| **Spatial Cognition** | Each topic is a “room” of thought — not a list or folder. |
-| **Intelligence Pluralism** | Human, AI, and environment all contribute to thought. |
-| **Persistence of Context** | A space remembers; it accumulates meaning over time. |
-| **Modular Intelligence** | Agents are plugins, not monoliths. |
-| **Human Reflection** | Encourage journaling and meta-thinking over automation. |
-| **Aesthetic Resonance** | Each space has mood and atmosphere. |
+| Principle              | Description                                                |
+|------------------------|------------------------------------------------------------|
+| **Spatial Cognition**  | Each topic is a “room” of thought — not a list or folder.  |
+| **Intelligence Pluralism** | Human, AI, and environment all contribute to thought.   |
+| **Persistence of Context** | A space remembers; it accumulates meaning over time.    |
+| **Modular Intelligence** | Agents are plugins, not monoliths.                       |
+| **Human Reflection**   | Encourage journaling and meta-thinking over automation.    |
+| **Aesthetic Resonance**| Each space has mood and atmosphere.                        |
 
 ---
 
 ## 🧩 Core Entities
 
-User
-└── Think Spaces
-├── Artifacts (inputs & outputs)
-├── Agents (LLMs, image generators, critics, etc.)
-└── Interactions (sessions or reasoning threads)
-
-pgsql
-Copy code
+User  
+└── Think Spaces  
+    ├── Artifacts (inputs & outputs)  
+    ├── Agents (LLMs, image generators, critics, etc.)  
+    └── Interactions (sessions or reasoning threads)  
 
 - **Artifacts:** Notes, links, images, agent outputs.  
 - **Agents:** Modular reasoning tools (start with one general agent).  
@@ -71,77 +66,78 @@ Copy code
 ## ⚙️ Functional Requirements (MVP)
 
 ### 1. Think Space Core
-| ID | Requirement |
-|----|--------------|
-| TS-01 | Create / open a Think Space. |
-| TS-02 | Load all artifacts associated with the space. |
-| TS-03 | Store metadata (name, theme, mood). |
+| ID     | Requirement                                  |
+|--------|----------------------------------------------|
+| TS-01  | Create / open a Think Space.                 |
+| TS-02  | Load all artifacts associated with the space.|
+| TS-03  | Store metadata (name, theme, mood).          |
 
 ### 2. Artifact Management
-| ID | Requirement |
-|----|--------------|
-| AR-01 | Add text artifacts (notes, ideas). |
-| AR-02 | Add link artifacts with fetched previews. |
-| AR-03 | Add image artifacts (upload or embed). |
-| AR-04 | Display artifacts as cards or list. |
-| AR-05 | Persist artifacts with embeddings. |
+| ID     | Requirement                                  |
+|--------|----------------------------------------------|
+| AR-01  | Add text artifacts (notes, ideas).           |
+| AR-02  | Add link artifacts with fetched previews.    |
+| AR-03  | Add image artifacts (upload or embed).       |
+| AR-04  | Display artifacts as cards or list.          |
+| AR-05  | Persist artifacts with embeddings.           |
 
 ### 3. AI Agent Interaction
-| ID | Requirement |
-|----|--------------|
-| AG-01 | Chat with a single agent in context. |
-| AG-02 | Retrieve relevant artifacts using embeddings. |
-| AG-03 | Generate responses (summaries, ideas). |
-| AG-04 | Store chat messages as interactions. |
-| AG-05 | Save agent outputs as artifacts (optional). |
+| ID     | Requirement                                  |
+|--------|----------------------------------------------|
+| AG-01  | Chat with a single agent in context.         |
+| AG-02  | Retrieve relevant artifacts using embeddings.|
+| AG-03  | Generate responses (summaries, ideas).       |
+| AG-04  | Store chat messages as interactions.         |
+| AG-05  | Save agent outputs as artifacts (optional).  |
 
 ### 4. Memory and Context
-| ID | Requirement |
-|----|--------------|
-| ME-01 | Generate embeddings for each artifact. |
-| ME-02 | Retrieve artifacts by semantic similarity. |
-| ME-03 | Update embeddings on new inputs. |
+| ID     | Requirement                                  |
+|--------|----------------------------------------------|
+| ME-01  | Generate embeddings for each artifact.       |
+| ME-02  | Retrieve artifacts by semantic similarity.   |
+| ME-03  | Update embeddings on new inputs.             |
 
 ### 5. User Interface
-| ID | Requirement |
-|----|--------------|
-| UI-01 | Minimal dashboard to enter a Think Space. |
-| UI-02 | Input form to add text, links, and uploads. |
-| UI-03 | Chat interface with message streaming. |
-| UI-04 | Visual theming per space. |
-| UI-05 | Responsive design for desktop and tablet. |
+| ID     | Requirement                                  |
+|--------|----------------------------------------------|
+| UI-01  | Minimal dashboard to enter a Think Space.    |
+| UI-02  | Input form to add text, links, and uploads.  |
+| UI-03  | Chat interface with message streaming.       |
+| UI-04  | Visual theming per space.                    |
+| UI-05  | Responsive design for desktop and tablet.    |
 
 ---
 
 ## 🧱 Non-Functional Requirements
 
-| Category | Requirement |
-|-----------|--------------|
+| Category        | Requirement                                          |
+|-----------------|-----------------------------------------------------|
 | **Performance** | Sub-3s agent responses for small prompts; <2s artifact load. |
-| **Scalability** | Support 100 artifacts in Supabase free tier. |
-| **Cost** | Stay within free usage tiers (<$5/mo typical). |
-| **Security** | Supabase Auth (optional) for user isolation. |
-| **Privacy** | All data private by default. |
-| **Maintainability** | Modular TypeScript, minimal dependencies. |
-| **Extensibility** | Easy to add artifact types or agents later. |
+| **Scalability** | Support 100 artifacts in Supabase free tier.        |
+| **Cost**        | Stay within free usage tiers (<$5/mo typical).      |
+| **Security**    | Supabase Auth (optional) for user isolation.        |
+| **Privacy**     | All data private by default.                        |
+| **Maintainability** | Modular TypeScript, minimal dependencies.       |
+| **Extensibility**   | Easy to add artifact types or agents later.     |
 
 ---
 
 ## 🧰 Technical Stack
 
-| Layer | Tool | Notes |
-|-------|------|-------|
-| **Frontend** | Next.js 15 (App Router) | Modern React framework |
-| **UI** | Tailwind CSS + shadcn/ui | Elegant minimal styling |
-| **Database** | Supabase (Postgres + pgvector) | Data + embeddings |
-| **AI API** | OpenAI GPT-4o-mini | Contextual responses |
-| **Auth (Optional)** | Supabase Auth | Private user spaces |
-| **Hosting** | Vercel (frontend), Supabase (backend) | Fully free-tier deploy |
+| Layer        | Tool                           | Notes                |
+|--------------|-------------------------------|----------------------|
+| **Frontend** | Next.js 15 (App Router)        | Modern React framework |
+| **UI**       | Tailwind CSS + shadcn/ui       | Elegant minimal styling |
+| **Database** | Supabase (Postgres + pgvector) | Data + embeddings    |
+| **AI API**   | OpenAI GPT-4o-mini             | Contextual responses |
+| **Auth (Optional)** | Supabase Auth           | Private user spaces  |
+| **Hosting**  | Vercel (frontend), Supabase (backend) | Fully free-tier deploy |
 
 ---
 
 ## 🧩 Data Schema (Simplified)
 
+```text
 spaces
 ├── id (uuid)
 ├── name
@@ -166,20 +162,18 @@ interactions
 ├── output
 ├── agent
 ├── created_at
-
-yaml
-Copy code
+```
 
 ---
 
 ## 🚀 Implementation Roadmap
 
-| Phase | Goal | Description |
-|--------|------|-------------|
-| **Week 1** | Setup + Schema | Create Supabase project, tables, connect to Next.js. |
-| **Week 2** | Artifact Input | Add text/link/image upload + embedding logic. |
-| **Week 3** | Chat Agent | Implement context retrieval + chat UI. |
-| **Week 4** | Polish + Deploy | Add theme/mood layer, deploy to Vercel. |
+| Phase     | Goal           | Description                                         |
+|-----------|----------------|-----------------------------------------------------|
+| **Week 1**| Setup + Schema | Create Supabase project, tables, connect to Next.js.|
+| **Week 2**| Artifact Input | Add text/link/image upload + embedding logic.       |
+| **Week 3**| Chat Agent     | Implement context retrieval + chat UI.              |
+| **Week 4**| Polish + Deploy| Add theme/mood layer, deploy to Vercel.            |
 
 ---
 
@@ -194,14 +188,14 @@ Copy code
 
 ## 🪞 Future Roadmap (Post-MVP)
 
-| Phase | Feature | Description |
-|--------|----------|-------------|
-| **2** | Multiple Spaces | User can manage multiple topics. |
-| **3** | Multi-Agent System | Add Critic, Synthesizer, Visualizer roles. |
-| **4** | Graph UI | 2D or 3D spatial visualization of artifacts. |
-| **5** | Shared Spaces | Collaborative co-thinking. |
-| **6** | Ambient Intelligence | Time, emotion, environment integration. |
-| **7** | Open API | External integrations and plugins. |
+| Phase | Feature            | Description                                 |
+|-------|--------------------|---------------------------------------------|
+| **2** | Multiple Spaces    | User can manage multiple topics.            |
+| **3** | Multi-Agent System | Add Critic, Synthesizer, Visualizer roles.  |
+| **4** | Graph UI           | 2D or 3D spatial visualization of artifacts.|
+| **5** | Shared Spaces      | Collaborative co-thinking.                  |
+| **6** | Ambient Intelligence| Time, emotion, environment integration.    |
+| **7** | Open API           | External integrations and plugins.          |
 
 ---
 
@@ -214,4 +208,3 @@ Copy code
 ---
 
 © 2025 — *Think Spaces: An experiment in inclusive cognition.*
-
