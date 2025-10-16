@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from .db import get_db
 from .models import Agent, Artifact, Space
+from .nlp_utils import build_summary_and_tags
 from .storage import remove_upload, save_upload
 
 templates = Jinja2Templates(directory="app/templates")
@@ -102,6 +103,9 @@ async def create_artifact(
         file_path=stored_name,
         mime_type=mime_type,
     )
+    summary, tags = build_summary_and_tags(title, content or "")
+    artifact.summary = summary or None
+    artifact.tags = tags
     db.add(artifact)
     db.commit()
     return RedirectResponse(
@@ -127,6 +131,9 @@ def update_artifact(
 
     artifact.title = title
     artifact.content = content
+    summary, tags = build_summary_and_tags(title, content or "")
+    artifact.summary = summary or None
+    artifact.tags = tags
     db.commit()
     return RedirectResponse(
         url=f"/ui/spaces/{space_id}", status_code=status.HTTP_303_SEE_OTHER

@@ -6,10 +6,17 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import Artifact, Space
+from ..nlp_utils import build_summary_and_tags
 from ..schemas import ArtifactCreate, ArtifactRead, ArtifactUpdate
 from ..storage import remove_upload, save_upload
 
 router = APIRouter(prefix="/artifacts", tags=["artifacts"])
+
+
+def _apply_nlp_enrichment(artifact: Artifact) -> None:
+    summary, tags = build_summary_and_tags(artifact.title, artifact.content or "")
+    artifact.summary = summary or None
+    artifact.tags = tags
 
 
 @router.get("/", response_model=List[ArtifactRead])
@@ -31,6 +38,7 @@ def create_artifact(artifact_in: ArtifactCreate, db: Session = Depends(get_db)) 
 
     payload = artifact_in.model_dump(exclude={"file_path"})
     artifact = Artifact(**payload)
+    _apply_nlp_enrichment(artifact)
     db.add(artifact)
     db.commit()
     db.refresh(artifact)
@@ -81,6 +89,7 @@ async def upload_artifact(
         file_path=stored_name,
         mime_type=mime_type,
     )
+    _apply_nlp_enrichment(artifact)
     db.add(artifact)
     db.commit()
     db.refresh(artifact)
@@ -107,8 +116,12 @@ def update_artifact(
             status_code=status.HTTP_404_NOT_FOUND, detail="Artifact not found"
         )
 
-    for field, value in artifact_in.model_dump(exclude_unset=True, exclude={"file_path"}).items():
+    updated_data = artifact_in.model_dump(exclude_unset=True, exclude={"file_path"})
+    for field, value in updated_data.items():
         setattr(artifact, field, value)
+
+    if {"title", "content"} & updated_data.keys():
+        _apply_nlp_enrichment(artifact)
 
     db.commit()
     db.refresh(artifact)

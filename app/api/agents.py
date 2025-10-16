@@ -96,7 +96,15 @@ async def interact_with_agent(
             detail=f"Provider '{agent.provider}' is not available",
         )
 
-    provider = provider_cls()
+    try:
+        provider = provider_cls(model=agent.model)
+    except TypeError:
+        provider = provider_cls()
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
 
     # Collect recent artifacts as lightweight context.
     context_limit = payload.context_limit
@@ -114,9 +122,16 @@ async def interact_with_agent(
         prompt=payload.prompt,
         system=payload.system,
         context=context,
+        options={"model": agent.model},
     )
 
-    response = await provider.generate(request)
+    try:
+        response = await provider.generate(request)
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
     return AgentInteractionResponse(
         output=response.output,
         metadata=dict(response.metadata),

@@ -9,10 +9,15 @@ def test_artifact_crud_flow(client):
     artifact = response.json()
     artifact_id = artifact["id"]
     assert artifact["space_id"] == space_id
+    assert artifact["summary"]
+    assert isinstance(artifact["tags"], list)
+    assert any(tag in {"sketch", "rough", "concept"} for tag in artifact["tags"])
 
     response = client.get("/artifacts", params={"space_id": space_id})
     assert response.status_code == 200
-    assert len(response.json()) == 1
+    listed = response.json()
+    assert len(listed) == 1
+    assert listed[0]["summary"]
 
     response = client.put(
         f"/artifacts/{artifact_id}",
@@ -20,6 +25,7 @@ def test_artifact_crud_flow(client):
     )
     assert response.status_code == 200
     assert response.json()["content"] == "Refined concept"
+    assert response.json()["summary"]
 
     response = client.delete(f"/artifacts/{artifact_id}")
     assert response.status_code == 204
@@ -48,6 +54,8 @@ def test_file_upload_artifact(client):
     artifact = response.json()
     assert artifact["file_path"] is not None
     assert artifact["file_name"] == "sample.txt"
+    assert artifact["summary"]
+    assert "upload" in artifact["tags"] or artifact["tags"] == []
 
     delete_response = client.delete(f"/artifacts/{artifact['id']}")
     assert delete_response.status_code == 204
@@ -69,3 +77,4 @@ def test_search_artifacts_api(client):
     results = response.json()
     assert len(results) == 1
     assert results[0]["title"] == "Deep Work"
+    assert results[0]["summary"]

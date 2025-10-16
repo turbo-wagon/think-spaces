@@ -58,6 +58,7 @@ This document defines the functional, non-functional, and system requirements gu
 | **Deployment** | GitHub Pages / Vercel / Azure App Service |
 | **Version Control** | GitHub |
 | **Environment Management** | `.env` and `requirements.txt` |
+| **Secrets** | Environment variables (e.g., `OPENAI_API_KEY`, `OLLAMA_BASE_URL`) |
 
 ---
 

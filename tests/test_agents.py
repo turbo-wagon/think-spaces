@@ -1,3 +1,6 @@
+import httpx
+
+
 def test_agent_crud_flow(client):
     space_id = client.post("/spaces", json={"name": "Lab"}).json()["id"]
 
@@ -75,3 +78,49 @@ def test_agent_interaction_echo_provider(client):
     data = response.json()
     assert "Hello world" in data["output"]
     assert data["provider"] == "echo"
+
+
+def test_openai_provider_without_key_returns_error(client, monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    space_id = client.post("/spaces", json={"name": "API"}).json()["id"]
+    agent = client.post(
+        "/agents",
+        json={
+            "space_id": space_id,
+            "name": "OpenAI",
+            "model": "gpt-4o-mini",
+            "provider": "openai",
+        },
+    ).json()
+
+    response = client.post(
+        f"/agents/{agent['id']}/interact",
+        json={"prompt": "Hello"},
+    )
+    assert response.status_code == 400
+    assert "OPENAI_API_KEY" in response.json()["detail"]
+
+
+def test_ollama_provider_connection_error(client, monkeypatch):
+    space_id = client.post("/spaces", json={"name": "Ollama"}).json()["id"]
+    agent = client.post(
+        "/agents",
+        json={
+            "space_id": space_id,
+            "name": "Local",
+            "model": "llama3",
+            "provider": "ollama",
+        },
+    ).json()
+
+    async def fake_post(self, *args, **kwargs):  # type: ignore[override]
+        raise httpx.ConnectError("no connection", request=None)
+
+    monkeypatch.setattr(httpx.AsyncClient, "post", fake_post)
+
+    response = client.post(
+        f"/agents/{agent['id']}/interact",
+        json={"prompt": "Ping"},
+    )
+    assert response.status_code == 400
+    assert "Ollama" in response.json()["detail"]

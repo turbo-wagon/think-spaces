@@ -29,6 +29,8 @@ class ArtifactRead(ArtifactBase):
     space_id: int
     created_at: datetime
     file_path: Optional[str] = None
+    summary: Optional[str] = None
+    tags: list[str] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
 

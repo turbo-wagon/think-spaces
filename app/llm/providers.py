@@ -11,6 +11,7 @@ class EchoProvider(LLMProvider):
     """Fallback provider that simply echoes prompts. Useful for tests."""
 
     name: str = "echo"
+    model: str = "echo"
 
     async def generate(self, request: CompletionRequest) -> CompletionResponse:
         combined_context = "\n".join(request.context)

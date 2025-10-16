@@ -103,7 +103,8 @@
     
 - **EmbeddingService** — provider-agnostic wrapper (initial adapter: OpenAI `text-embedding-3-small`; extend to Azure, Anthropic, or local models).
     
-- **LLMService** — agent abstraction supporting multiple providers (OpenAI, Azure OpenAI, Anthropic, local GGUF via Ollama) behind a common interface.
+- **LLMService** — agent abstraction supporting multiple providers (OpenAI, Azure OpenAI, Anthropic, local GGUF via Ollama) behind a common interface. OpenAI adapters expect `OPENAI_API_KEY`; Ollama uses `OLLAMA_BASE_URL` (default `http://localhost:11434`).
+- **NLPService** — lightweight summariser/keyword extractor to enrich artifact metadata for retrieval.
     
 - **ScraperService** — lightweight readability extraction (server-side fetch); guards for CORS/robots.
     
@@ -213,6 +214,7 @@ create policy interactions_owner on public.interactions
 ```
 User → UI:AddArtifact → POST /api/artifacts
   → DB: insert (type='text', content)
+  → NLPService: summarise + keywords for metadata
   → EmbeddingService: embed(content)
   → DB: update embedding
   → UI: optimistic card render
@@ -223,6 +225,7 @@ User → UI:AddArtifact → POST /api/artifacts
 ```
 User → UI:AddLink → POST /api/ingest { url }
   → ScraperService: fetch + extract title/summary
+  → NLPService: keywords + summary post-processing
   → EmbeddingService: embed(summary || text)
   → DB: insert artifact {type='link', content=url, metadata:{title,summary}}
   → UI: show preview card

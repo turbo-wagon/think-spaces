@@ -40,6 +40,7 @@ def test_ui_flows(client):
     detail = client.get(location)
     assert "First note" in detail.text
     assert "Researcher" in detail.text
+    assert "Tags:" in detail.text
 
     # Update artifact
     response = client.post(

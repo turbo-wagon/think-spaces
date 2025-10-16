@@ -51,8 +51,14 @@
                 {% if artifact.content %}
                     <p>{{ artifact.content }}</p>
                 {% endif %}
+                {% if artifact.summary %}
+                    <p><em>{{ artifact.summary }}</em></p>
+                {% endif %}
                 {% if artifact.file_path %}
                     <p><strong>File:</strong> <a href="/uploads/{{ artifact.file_path }}" target="_blank">{{ artifact.file_name or "Download" }}</a></p>
+                {% endif %}
+                {% if artifact.tags %}
+                    <p><strong>Tags:</strong> {{ ", ".join(artifact.tags) }}</p>
                 {% endif %}
                 <small>Added {{ artifact.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
                 <details>

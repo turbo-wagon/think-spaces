@@ -1,3 +1,5 @@
+import json
+
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -30,9 +32,29 @@ class Artifact(Base):
     file_name = Column(String(255), nullable=True)
     file_path = Column(String(255), nullable=True)
     mime_type = Column(String(100), nullable=True)
+    summary = Column(Text, nullable=True)
+    _tags = Column("tags", Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     space = relationship("Space", back_populates="artifacts")
+
+    @property
+    def tags(self) -> list[str]:
+        if not self._tags:
+            return []
+        try:
+            return json.loads(self._tags)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    @tags.setter
+    def tags(self, value: list[str] | str | None) -> None:
+        if value is None:
+            self._tags = None
+        elif isinstance(value, str):
+            self._tags = value
+        else:
+            self._tags = json.dumps(list(value))
 
 
 class Agent(Base):
