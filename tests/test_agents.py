@@ -7,6 +7,7 @@ def test_agent_crud_flow(client):
             "space_id": space_id,
             "name": "Thinker",
             "model": "gpt-4o-mini",
+            "provider": "echo",
             "description": "Context-aware assistant",
         },
     )
@@ -15,6 +16,7 @@ def test_agent_crud_flow(client):
     agent_id = agent["id"]
     assert agent["space_id"] == space_id
     assert agent["model"] == "gpt-4o-mini"
+    assert agent["provider"] == "echo"
 
     response = client.get("/agents", params={"space_id": space_id})
     assert response.status_code == 200
@@ -28,6 +30,7 @@ def test_agent_crud_flow(client):
     )
     assert response.status_code == 200
     assert response.json()["description"] == "Updated description"
+    assert response.json()["provider"] == "echo"
 
     detail = client.get(f"/spaces/{space_id}").json()
     assert len(detail["agents"]) == 1
@@ -45,3 +48,30 @@ def test_create_agent_requires_space(client):
         json={"space_id": 999, "name": "Ghost", "model": "phantom"},
     )
     assert response.status_code == 404
+
+
+def test_agent_interaction_echo_provider(client):
+    space_id = client.post("/spaces", json={"name": "Interact"}).json()["id"]
+    # Add artifact for context
+    client.post(
+        "/artifacts",
+        json={"space_id": space_id, "title": "Context note", "content": "Insight"},
+    )
+    agent = client.post(
+        "/agents",
+        json={
+            "space_id": space_id,
+            "name": "Echo",
+            "model": "echo",
+            "provider": "echo",
+        },
+    ).json()
+
+    response = client.post(
+        f"/agents/{agent['id']}/interact",
+        json={"prompt": "Hello world", "context_limit": 2},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "Hello world" in data["output"]
+    assert data["provider"] == "echo"

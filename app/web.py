@@ -156,6 +156,7 @@ def create_agent(
     space_id: int,
     name: str = Form(...),
     model: str = Form(...),
+    provider: str = Form("echo"),
     description: str | None = Form(default=None),
     db: Session = Depends(get_db),
 ):
@@ -163,7 +164,13 @@ def create_agent(
     if space is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Space not found")
 
-    agent = Agent(space_id=space_id, name=name, model=model, description=description)
+    agent = Agent(
+        space_id=space_id,
+        name=name,
+        model=model,
+        provider=provider,
+        description=description,
+    )
     db.add(agent)
     db.commit()
     return RedirectResponse(
@@ -177,6 +184,7 @@ def update_agent_ui(
     agent_id: int,
     name: str = Form(...),
     model: str = Form(...),
+    provider: str = Form(...),
     description: str | None = Form(default=None),
     db: Session = Depends(get_db),
 ):
@@ -190,6 +198,7 @@ def update_agent_ui(
 
     agent.name = name
     agent.model = model
+    agent.provider = provider
     agent.description = description
     db.commit()
     return RedirectResponse(

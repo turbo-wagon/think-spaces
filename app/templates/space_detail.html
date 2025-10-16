@@ -106,6 +106,7 @@
             <div class="card">
                 <h4>{{ agent.name }}</h4>
                 <p><strong>Model:</strong> {{ agent.model }}</p>
+                <p><strong>Provider:</strong> {{ agent.provider }}</p>
                 {% if agent.description %}
                     <p>{{ agent.description }}</p>
                 {% endif %}
@@ -120,6 +121,10 @@
                         <div>
                             <label for="agent-model-{{ agent.id }}">Model</label>
                             <input id="agent-model-{{ agent.id }}" name="model" type="text" value="{{ agent.model }}" required>
+                        </div>
+                        <div>
+                            <label for="agent-provider-{{ agent.id }}">Provider</label>
+                            <input id="agent-provider-{{ agent.id }}" name="provider" type="text" value="{{ agent.provider }}" required>
                         </div>
                         <div>
                             <label for="agent-description-{{ agent.id }}">Description</label>
@@ -146,6 +151,10 @@
         <div>
             <label for="agent-model">Model</label>
             <input id="agent-model" name="model" type="text" required placeholder="gpt-4o-mini">
+        </div>
+        <div>
+            <label for="agent-provider">Provider</label>
+            <input id="agent-provider" name="provider" type="text" value="echo" required>
         </div>
         <div>
             <label for="agent-description">Description</label>

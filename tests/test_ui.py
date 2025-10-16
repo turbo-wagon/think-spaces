@@ -32,7 +32,7 @@ def test_ui_flows(client):
     # Add agent
     response = client.post(
         f"{location}/agents",
-        data={"name": "Researcher", "model": "gpt-4o-mini"},
+        data={"name": "Researcher", "model": "gpt-4o-mini", "provider": "echo"},
         follow_redirects=False,
     )
     assert response.status_code == 303
@@ -96,7 +96,12 @@ def test_ui_flows(client):
     # Update agent
     response = client.post(
         f"{location}/agents/1/update",
-        data={"name": "Updated Agent", "model": "gpt-4o-mini", "description": "Helper"},
+        data={
+            "name": "Updated Agent",
+            "model": "gpt-4o-mini",
+            "provider": "echo",
+            "description": "Helper",
+        },
         follow_redirects=False,
     )
     assert response.status_code == 303

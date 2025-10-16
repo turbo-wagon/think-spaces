@@ -4,8 +4,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..models import Agent, Space
-from ..schemas import AgentCreate, AgentRead, AgentUpdate
+from ..llm import CompletionRequest, registry
+from ..models import Agent, Artifact, Space
+from ..schemas import (
+    AgentCreate,
+    AgentInteractionRequest,
+    AgentInteractionResponse,
+    AgentRead,
+    AgentUpdate,
+)
 
 router = APIRouter(prefix="/agents", tags=["agents"])
 
@@ -66,3 +73,52 @@ def delete_agent(agent_id: int, db: Session = Depends(get_db)) -> None:
 
     db.delete(agent)
     db.commit()
+
+
+@router.post(
+    "/{agent_id}/interact",
+    response_model=AgentInteractionResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def interact_with_agent(
+    agent_id: int,
+    payload: AgentInteractionRequest,
+    db: Session = Depends(get_db),
+) -> AgentInteractionResponse:
+    agent = db.query(Agent).filter(Agent.id == agent_id).first()
+    if agent is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
+
+    provider_cls = registry.get(agent.provider)
+    if provider_cls is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Provider '{agent.provider}' is not available",
+        )
+
+    provider = provider_cls()
+
+    # Collect recent artifacts as lightweight context.
+    context_limit = payload.context_limit
+    context = []
+    if context_limit:
+        artifact_query = (
+            db.query(Artifact)
+            .filter(Artifact.space_id == agent.space_id)
+            .order_by(Artifact.created_at.desc())
+            .limit(context_limit)
+        )
+        context = [artifact.title for artifact in artifact_query]
+
+    request = CompletionRequest(
+        prompt=payload.prompt,
+        system=payload.system,
+        context=context,
+    )
+
+    response = await provider.generate(request)
+    return AgentInteractionResponse(
+        output=response.output,
+        metadata=dict(response.metadata),
+        provider=agent.provider,
+    )

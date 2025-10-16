@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -63,6 +63,7 @@ class AgentBase(BaseModel):
     name: str = Field(..., max_length=100)
     model: str = Field(..., max_length=100)
     description: Optional[str] = None
+    provider: str = Field(default="echo", max_length=50)
 
 
 class AgentCreate(AgentBase):
@@ -84,3 +85,15 @@ class AgentRead(AgentBase):
 
 
 SpaceDetail.model_rebuild()
+
+
+class AgentInteractionRequest(BaseModel):
+    prompt: str
+    system: Optional[str] = None
+    context_limit: int = Field(default=5, ge=0, le=25)
+
+
+class AgentInteractionResponse(BaseModel):
+    output: str
+    provider: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
