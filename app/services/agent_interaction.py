@@ -163,19 +163,26 @@ async def summarize_space_state(agent: Agent, db: Session) -> str:
         for interaction in interactions
     ]
 
+    summary_prompt = (
+        "You are the space memory steward for a Think Space. Produce a concise "
+        "narrative summary that captures: 1) the core themes across the current "
+        "artifacts (mention titles and key points), 2) the latest conversation "
+        "highlights (major decisions, questions, or ideas), and 3) suggested next "
+        "steps or open questions to explore. Use a calm, encouraging tone. Keep "
+        "it under 6 sentences. If information is thin, clearly state what’s missing "
+        "instead of guessing."
+    )
+
     prompt = (
-        "Summarize the current Think Space for the user. "
-        "Explain the key artifacts and recent conversation highlights. "
-        "Be concise but cover the essential ideas and next steps.\n\n"
-        "Artifacts:\n" + "\n".join(lines) + "\n\nRecent conversation:\n" + "\n\n".join(history_lines)
+        "Artifacts collected in this space:\n"
+        + ("\n".join(lines) if lines else "(none yet)")
+        + "\n\nRecent conversation exchanges:\n"
+        + ("\n\n".join(history_lines) if history_lines else "(no recent exchanges)")
     )
 
     request = CompletionRequest(
         prompt=prompt,
-        system=(
-            agent.system_prompt
-            or "You are a helpful summarizer capturing the state of this Think Space."
-        ),
+        system=summary_prompt,
         context=[],
         options={"model": agent.model},
     )

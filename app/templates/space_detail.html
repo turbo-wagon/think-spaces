@@ -154,10 +154,13 @@
                     <form method="post" action="/ui/spaces/{{ space.id }}/agents/{{ agent.id }}/delete" style="margin-top: 0.5rem;">
                         <button type="submit" style="background:#dc2626">Delete</button>
                     </form>
-                    <form method="post" action="/ui/spaces/{{ space.id }}/agents/{{ agent.id }}/summarize" style="margin-top:0.5rem;">
+                </details>
+
+                <div style="margin:0.75rem 0; display:flex; gap:0.5rem;">
+                    <form method="post" action="/ui/spaces/{{ space.id }}/agents/{{ agent.id }}/summarize">
                         <button type="submit">Summarize Space</button>
                     </form>
-                </details>
+                </div>
 
                 <section style="margin-top:1rem;">
                     <h5>Chat</h5>
