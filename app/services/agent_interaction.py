@@ -12,6 +12,15 @@ from ..schemas import AgentInteractionRequest
 async def execute_agent_interaction(
     agent: Agent, payload: AgentInteractionRequest, db: Session
 ) -> Tuple[str, dict, List[dict]]:
+    default_system_prompt = (
+        "You are a Think Spaces companion. Always weave in the most relevant "
+        "artifacts from the current space (use their titles, summaries, or tags "
+        "as supporting evidence), surface follow-up questions that move the idea "
+        "forward, and keep responses concise, positive, and actionable. Prefer "
+        "concrete suggestions over abstractions, and explicitly call out when the "
+        "artifact context is insufficient."
+    )
+
     provider_cls = registry.get(agent.provider)
     if provider_cls is None:
         raise RuntimeError(f"Provider '{agent.provider}' is not available")
@@ -33,7 +42,11 @@ async def execute_agent_interaction(
     history_items = _build_history(agent, db)
     history_strings = [_format_history_item(item) for item in history_items]
 
-    system_prompt = payload.system if payload.system is not None else agent.system_prompt
+    system_prompt = (
+        payload.system
+        if payload.system is not None
+        else agent.system_prompt or default_system_prompt
+    )
 
     request = CompletionRequest(
         prompt=payload.prompt,
