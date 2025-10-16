@@ -20,6 +20,9 @@ class Space(Base):
     agents = relationship(
         "Agent", back_populates="space", cascade="all, delete-orphan"
     )
+    interactions = relationship(
+        "Interaction", back_populates="space", cascade="all, delete-orphan"
+    )
 
 
 class Artifact(Base):
@@ -69,3 +72,40 @@ class Agent(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     space = relationship("Space", back_populates="agents")
+    interactions = relationship(
+        "Interaction", back_populates="agent", cascade="all, delete-orphan"
+    )
+
+
+class Interaction(Base):
+    __tablename__ = "interactions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    agent_id = Column(Integer, ForeignKey("agents.id"), nullable=False)
+    space_id = Column(Integer, ForeignKey("spaces.id"), nullable=False)
+    prompt = Column(Text, nullable=False)
+    system_prompt = Column(Text, nullable=True)
+    response = Column(Text, nullable=False)
+    provider = Column(String(50), nullable=False)
+    model = Column(String(100), nullable=False)
+    context_json = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    agent = relationship("Agent", back_populates="interactions")
+    space = relationship("Space", back_populates="interactions")
+
+    @property
+    def context(self) -> list[dict]:
+        if not self.context_json:
+            return []
+        try:
+            return json.loads(self.context_json)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    @context.setter
+    def context(self, value: list[dict] | None) -> None:
+        if value is None:
+            self.context_json = None
+        else:
+            self.context_json = json.dumps(value)

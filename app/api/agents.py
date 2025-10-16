@@ -4,14 +4,15 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..llm import CompletionRequest, registry
-from ..models import Agent, Artifact, Space
+from ..models import Agent, Interaction, Space
+from ..services.agent_interaction import execute_agent_interaction
 from ..schemas import (
     AgentCreate,
     AgentInteractionRequest,
     AgentInteractionResponse,
     AgentRead,
     AgentUpdate,
+    InteractionRead,
 )
 
 router = APIRouter(prefix="/agents", tags=["agents"])
@@ -89,51 +90,45 @@ async def interact_with_agent(
     if agent is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
 
-    provider_cls = registry.get(agent.provider)
-    if provider_cls is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Provider '{agent.provider}' is not available",
-        )
-
     try:
-        provider = provider_cls(model=agent.model)
-    except TypeError:
-        provider = provider_cls()
+        output, metadata, context_items = await execute_agent_interaction(agent, payload, db)
     except RuntimeError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         )
 
-    # Collect recent artifacts as lightweight context.
-    context_limit = payload.context_limit
-    context = []
-    if context_limit:
-        artifact_query = (
-            db.query(Artifact)
-            .filter(Artifact.space_id == agent.space_id)
-            .order_by(Artifact.created_at.desc())
-            .limit(context_limit)
-        )
-        context = [artifact.title for artifact in artifact_query]
-
-    request = CompletionRequest(
+    interaction = Interaction(
+        agent_id=agent.id,
+        space_id=agent.space_id,
         prompt=payload.prompt,
-        system=payload.system,
-        context=context,
-        options={"model": agent.model},
+        system_prompt=payload.system,
+        response=output,
+        provider=agent.provider,
+        model=agent.model,
+    )
+    interaction.context = context_items
+    db.add(interaction)
+    db.commit()
+    db.refresh(interaction)
+
+    return AgentInteractionResponse(
+        output=output,
+        metadata=metadata,
+        provider=agent.provider,
+        context=context_items,
     )
 
-    try:
-        response = await provider.generate(request)
-    except RuntimeError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc),
-        )
-    return AgentInteractionResponse(
-        output=response.output,
-        metadata=dict(response.metadata),
-        provider=agent.provider,
+
+@router.get("/{agent_id}/interactions", response_model=List[InteractionRead])
+def list_agent_interactions(agent_id: int, db: Session = Depends(get_db)) -> List[Interaction]:
+    agent = db.query(Agent).filter(Agent.id == agent_id).first()
+    if agent is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
+
+    return (
+        db.query(Interaction)
+        .filter(Interaction.agent_id == agent_id)
+        .order_by(Interaction.created_at.desc())
+        .all()
     )

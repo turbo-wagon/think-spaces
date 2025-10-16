@@ -7,7 +7,9 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session, selectinload
 
 from .db import get_db
-from .models import Agent, Artifact, Space
+from .models import Agent, Artifact, Interaction, Space
+from .schemas import AgentInteractionRequest
+from .services.agent_interaction import execute_agent_interaction
 from .nlp_utils import build_summary_and_tags
 from .storage import remove_upload, save_upload
 
@@ -72,10 +74,24 @@ def space_detail(
             .all()
         )
 
+    interactions_by_agent: dict[int, list[Interaction]] = {}
+    for agent in space.agents:
+        interactions_by_agent[agent.id] = (
+            db.query(Interaction)
+            .filter(Interaction.agent_id == agent.id)
+            .order_by(Interaction.created_at.desc())
+            .all()
+        )
+
     return templates.TemplateResponse(
         request,
         "space_detail.html",
-        {"space": space, "search_query": search, "search_results": search_results},
+        {
+            "space": space,
+            "search_query": search,
+            "search_results": search_results,
+            "interactions": interactions_by_agent,
+        },
     )
 
 
@@ -227,4 +243,52 @@ def delete_agent_ui(space_id: int, agent_id: int, db: Session = Depends(get_db))
     db.commit()
     return RedirectResponse(
         url=f"/ui/spaces/{space_id}", status_code=status.HTTP_303_SEE_OTHER
+    )
+
+
+@router.post("/spaces/{space_id}/agents/{agent_id}/chat")
+async def chat_with_agent(
+    space_id: int,
+    agent_id: int,
+    prompt: str = Form(...),
+    system: str | None = Form(default=None),
+    context_limit: int = Form(default=5),
+    db: Session = Depends(get_db),
+):
+    agent = (
+        db.query(Agent)
+        .filter(Agent.id == agent_id, Agent.space_id == space_id)
+        .first()
+    )
+    if agent is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
+
+    payload = AgentInteractionRequest(
+        prompt=prompt,
+        system=system,
+        context_limit=context_limit,
+    )
+
+    try:
+        output, metadata, context_items = await execute_agent_interaction(agent, payload, db)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+    interaction = Interaction(
+        agent_id=agent.id,
+        space_id=space_id,
+        prompt=prompt,
+        system_prompt=system,
+        response=output,
+        provider=agent.provider,
+        model=agent.model,
+    )
+    interaction.context = context_items
+
+    db.add(interaction)
+    db.commit()
+
+    return RedirectResponse(
+        url=f"/ui/spaces/{space_id}?agent={agent_id}#agent-{agent_id}",
+        status_code=status.HTTP_303_SEE_OTHER,
     )

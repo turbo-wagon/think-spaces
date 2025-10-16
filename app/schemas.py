@@ -76,6 +76,7 @@ class AgentUpdate(BaseModel):
     name: Optional[str] = Field(None, max_length=100)
     model: Optional[str] = Field(None, max_length=100)
     description: Optional[str] = None
+    provider: Optional[str] = Field(None, max_length=50)
 
 
 class AgentRead(AgentBase):
@@ -99,3 +100,19 @@ class AgentInteractionResponse(BaseModel):
     output: str
     provider: str
     metadata: dict[str, Any] = Field(default_factory=dict)
+    context: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class InteractionRead(BaseModel):
+    id: int
+    agent_id: int
+    space_id: int
+    prompt: str
+    system_prompt: Optional[str] = None
+    response: str
+    provider: str
+    model: str
+    context: list[dict[str, Any]] = Field(default_factory=list)
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

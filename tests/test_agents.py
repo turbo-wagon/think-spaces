@@ -78,6 +78,7 @@ def test_agent_interaction_echo_provider(client):
     data = response.json()
     assert "Hello world" in data["output"]
     assert data["provider"] == "echo"
+    assert isinstance(data["context"], list)
 
 
 def test_openai_provider_without_key_returns_error(client, monkeypatch):
@@ -124,3 +125,29 @@ def test_ollama_provider_connection_error(client, monkeypatch):
     )
     assert response.status_code == 400
     assert "Ollama" in response.json()["detail"]
+
+
+def test_list_agent_interactions(client):
+    space_id = client.post("/spaces", json={"name": "History"}).json()["id"]
+    agent = client.post(
+        "/agents",
+        json={
+            "space_id": space_id,
+            "name": "Echo history",
+            "model": "echo",
+            "provider": "echo",
+        },
+    ).json()
+
+    for prompt in ["first", "second"]:
+        resp = client.post(
+            f"/agents/{agent['id']}/interact",
+            json={"prompt": prompt, "context_limit": 0},
+        )
+        assert resp.status_code == 200
+
+    history = client.get(f"/agents/{agent['id']}/interactions")
+    assert history.status_code == 200
+    items = history.json()
+    assert len(items) == 2
+    assert items[0]["prompt"] in {"first", "second"}

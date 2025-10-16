@@ -109,7 +109,7 @@
     </div>
     {% if space.agents %}
         {% for agent in space.agents %}
-            <div class="card">
+            <div class="card" id="agent-{{ agent.id }}">
                 <h4>{{ agent.name }}</h4>
                 <p><strong>Model:</strong> {{ agent.model }}</p>
                 <p><strong>Provider:</strong> {{ agent.provider }}</p>
@@ -142,6 +142,58 @@
                         <button type="submit" style="background:#dc2626">Delete</button>
                     </form>
                 </details>
+
+                <section style="margin-top:1rem;">
+                    <h5>Chat</h5>
+                    <form method="post" action="/ui/spaces/{{ space.id }}/agents/{{ agent.id }}/chat">
+                        <div>
+                            <label for="chat-prompt-{{ agent.id }}">Prompt</label>
+                            <textarea id="chat-prompt-{{ agent.id }}" name="prompt" rows="3" required placeholder="Ask something..."></textarea>
+                        </div>
+                        <div>
+                            <label for="chat-system-{{ agent.id }}">System message (optional)</label>
+                            <input id="chat-system-{{ agent.id }}" name="system" type="text" placeholder="Tone or instructions">
+                        </div>
+                        <div>
+                            <label for="chat-context-{{ agent.id }}">Context limit</label>
+                            <input id="chat-context-{{ agent.id }}" name="context_limit" type="number" min="0" max="25" value="5">
+                        </div>
+                        <button type="submit">Send</button>
+                    </form>
+
+                    {% set history = interactions.get(agent.id, []) %}
+                    {% if history %}
+                        <div style="margin-top:1rem;">
+                            <h5>Conversation</h5>
+                            {% for interaction in history %}
+                                <details style="margin-bottom:0.75rem;">
+                                    <summary>
+                                        <strong>{{ interaction.created_at.strftime("%Y-%m-%d %H:%M") }}</strong> — {{ interaction.prompt[:60] }}{% if interaction.prompt|length > 60 %}…{% endif %}
+                                    </summary>
+                                    {% if interaction.system_prompt %}
+                                        <p><em>System:</em> {{ interaction.system_prompt }}</p>
+                                    {% endif %}
+                                    <p><strong>Prompt:</strong> {{ interaction.prompt }}</p>
+                                    <p><strong>Response:</strong> {{ interaction.response }}</p>
+                                    {% if interaction.context %}
+                                        <details>
+                                            <summary>View context</summary>
+                                            <ul>
+                                                {% for item in interaction.context %}
+                                                    <li>
+                                                        <strong>{{ item.title }}</strong><br>
+                                                        {% if item.summary %}<span>{{ item.summary }}</span><br>{% endif %}
+                                                        {% if item.tags %}<small>Tags: {{ ", ".join(item.tags) }}</small>{% endif %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </details>
+                                    {% endif %}
+                                </details>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </section>
             </div>
         {% endfor %}
     {% else %}
