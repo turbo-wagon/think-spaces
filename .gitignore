@@ -1,0 +1,40 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.env
+.venv/
+venv/
+env/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# IDE / editor settings
+.idea/
+.vscode/
+.pytest_cache/
+
+# OS-generated
+.DS_Store
+Thumbs.db
+
+# Logs / coverage
+*.log
+coverage/
+.coverage
+.coverage.*
+
+# Databases / storage
+*.db
+*.sqlite
+uploads/
+
+# Local overrides
+*.local
+.env.*
