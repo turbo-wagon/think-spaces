@@ -54,7 +54,7 @@ This document defines the functional, non-functional, and system requirements gu
 | **Frontend** | React (or Jinja templates for MVP) |
 | **Database** | SQLite (MVP), PostgreSQL (scalable version) |
 | **Storage** | Local-first, optional cloud sync |
-| **AI Models** | Azure OpenAI / OpenAI (text + image) |
+| **AI Models** | Pluggable LLM providers (OpenAI, Azure, Anthropic, local) |
 | **Deployment** | GitHub Pages / Vercel / Azure App Service |
 | **Version Control** | GitHub |
 | **Environment Management** | `.env` and `requirements.txt` |

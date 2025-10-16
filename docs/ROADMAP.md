@@ -25,7 +25,7 @@ Each phase builds upon the previous one, enabling iterative growth and integrati
 
 **Tasks**
 - [x] Add `/spaces`, `/artifacts`, and `/agents` API endpoints  
-- [ ] Connect to OpenAI or Azure OpenAI  
+- [ ] Connect pluggable LLM providers (OpenAI, Azure, Anthropic, local)  
 - [ ] Implement simple “context-aware thinking” agent  
 - [ ] Store embeddings in local vector DB (PGVector or FAISS)
 

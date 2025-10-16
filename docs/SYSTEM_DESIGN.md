@@ -23,8 +23,8 @@
    │   └─ /api/upload     (signed URLs to Supabase Storage)
    └─ Services Layer
        ├─ Supabase Client (Postgres + pgvector + Storage)
-       ├─ Embedding Client (OpenAI)
-       └─ LLM Client (OpenAI GPT‑4o‑mini)
+       ├─ Embedding Client (provider adapter)
+       └─ LLM Client (pluggable provider adapter)
         │
         ▼
 [Supabase]
@@ -101,9 +101,9 @@
 
 - **SupabaseService** — typed queries, RLS‑aware.
     
-- **EmbeddingService** — OpenAI `text-embedding-3-small`.
+- **EmbeddingService** — provider-agnostic wrapper (initial adapter: OpenAI `text-embedding-3-small`; extend to Azure, Anthropic, or local models).
     
-- **LLMService** — OpenAI GPT‑4o‑mini (chat completion w/ streaming).
+- **LLMService** — agent abstraction supporting multiple providers (OpenAI, Azure OpenAI, Anthropic, local GGUF via Ollama) behind a common interface.
     
 - **ScraperService** — lightweight readability extraction (server-side fetch); guards for CORS/robots.
     
@@ -320,9 +320,9 @@ You are the General Agent for a personal Think Space. Your goals:
 
 ## 8) Performance & Costs
 
-- **Embedding**: OpenAI `text-embedding-3-small` (~cheap; batch where possible).
+- **Embedding**: whichever adapter is configured (default OpenAI `text-embedding-3-small`; alternatives include Azure, Anthropic, local models).
     
-- **LLM**: GPT‑4o‑mini for generation (streaming reduces perceived latency).
+- **LLM**: provider chosen per agent (default GPT‑4o‑mini; supports Azure, Anthropic, or local GGUF models via adapter).
     
 - **DB**: Index `embedding` with `ivfflat` and `vector_cosine_ops`.
     
@@ -350,7 +350,7 @@ You are the General Agent for a personal Think Space. Your goals:
     
 - **Storage**: Private buckets for images; signed URLs for access.
     
-- **Secrets**: Vercel env vars; never expose OpenAI key client‑side.
+- **Secrets**: Vercel env vars; keep provider keys (OpenAI, Anthropic, Azure, local) server-side only.
     
 - **PII**: Avoid storing sensitive personal data in artifacts for MVP.
     

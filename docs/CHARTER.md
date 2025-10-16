@@ -24,7 +24,7 @@ The system evolves with you over time, building memory and insight unique to eac
 - Supabase storage for artifacts and chat interactions.
 - Context memory via vector embeddings (pgvector).
 - Visual theming per space.
-- Free-tier deploy (Vercel + Supabase + OpenAI API).
+- Free-tier deploy (Vercel + Supabase + pluggable LLM providers).
 
 ### Out of Scope (Future Phases)
 - Multi-user or shared spaces.
@@ -129,7 +129,7 @@ User
 | **Frontend** | Next.js 15 (App Router)        | Modern React framework |
 | **UI**       | Tailwind CSS + shadcn/ui       | Elegant minimal styling |
 | **Database** | Supabase (Postgres + pgvector) | Data + embeddings    |
-| **AI API**   | OpenAI GPT-4o-mini             | Contextual responses |
+| **LLM Providers** | Adapter-friendly (OpenAI, Azure, Anthropic, local) | Contextual responses |
 | **Auth (Optional)** | Supabase Auth           | Private user spaces  |
 | **Hosting**  | Vercel (frontend), Supabase (backend) | Fully free-tier deploy |
 
