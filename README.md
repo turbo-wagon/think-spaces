@@ -6,6 +6,7 @@ Within each space, users can collect links, notes, images, and ideas, and connec
 ---
 
 ## 📄 Documentation
+- [Intro](docs/INTRODUCTION.md)
 - [Project Charter](docs/CHARTER.md)
 - [System Design](docs/SYSTEM_DESIGN.md)
 - [Roadmap](docs/ROADMAP.md)
