@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<a href="/ui/spaces">&larr; Back to spaces</a>
+
+<h2>{{ space.name }}</h2>
+{% if space.description %}
+    <p>{{ space.description }}</p>
+{% endif %}
+
+<section>
+    <div class="section-header">
+        <h3>Artifacts</h3>
+        <span>{{ space.artifacts|length }} stored</span>
+    </div>
+    <form method="get" action="/ui/spaces/{{ space.id }}" style="margin-bottom:1rem;">
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+            <input name="q" type="text" placeholder="Search artifacts" value="{{ search_query or '' }}" style="flex:1;">
+            <button type="submit">Search</button>
+            {% if search_query %}
+                <a href="/ui/spaces/{{ space.id }}" style="margin-left:0.5rem;">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if search_results is not none %}
+        <div>
+            <h4>Search results{% if search_query %} for "{{ search_query }}"{% endif %}</h4>
+            {% if search_results %}
+                {% for artifact in search_results %}
+                    <div class="card" style="background:#e0f2fe;">
+                        <h4>{{ artifact.title }}</h4>
+                        {% if artifact.content %}
+                            <p>{{ artifact.content }}</p>
+                        {% endif %}
+                        {% if artifact.file_path %}
+                            <p><strong>File:</strong> <a href="/uploads/{{ artifact.file_path }}" target="_blank">{{ artifact.file_name or "Download" }}</a></p>
+                        {% endif %}
+                        <small>Added {{ artifact.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-state">No matches found.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if space.artifacts %}
+        {% for artifact in space.artifacts %}
+            <div class="card">
+                <h4>{{ artifact.title }}</h4>
+                {% if artifact.content %}
+                    <p>{{ artifact.content }}</p>
+                {% endif %}
+                {% if artifact.file_path %}
+                    <p><strong>File:</strong> <a href="/uploads/{{ artifact.file_path }}" target="_blank">{{ artifact.file_name or "Download" }}</a></p>
+                {% endif %}
+                <small>Added {{ artifact.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+                <details>
+                    <summary>Edit</summary>
+                    <form method="post" action="/ui/spaces/{{ space.id }}/artifacts/{{ artifact.id }}/update">
+                        <div>
+                            <label for="artifact-title-{{ artifact.id }}">Title</label>
+                            <input id="artifact-title-{{ artifact.id }}" name="title" type="text" value="{{ artifact.title }}" required>
+                        </div>
+                        <div>
+                            <label for="artifact-content-{{ artifact.id }}">Content</label>
+                            <textarea id="artifact-content-{{ artifact.id }}" name="content" rows="3">{{ artifact.content or '' }}</textarea>
+                        </div>
+                        <button type="submit">Update</button>
+                    </form>
+                    <form method="post" action="/ui/spaces/{{ space.id }}/artifacts/{{ artifact.id }}/delete" style="margin-top: 0.5rem;">
+                        <button type="submit" style="background:#dc2626">Delete</button>
+                    </form>
+                </details>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty-state">No artifacts yet. Capture your first note below.</p>
+    {% endif %}
+
+    <form method="post" action="/ui/spaces/{{ space.id }}/artifacts" enctype="multipart/form-data">
+        <h4>Add artifact</h4>
+        <div>
+            <label for="artifact-title">Title</label>
+            <input id="artifact-title" name="title" type="text" required placeholder="Idea summary">
+        </div>
+        <div>
+            <label for="artifact-content">Content</label>
+            <textarea id="artifact-content" name="content" rows="4" placeholder="Paste notes, descriptions, or links"></textarea>
+        </div>
+        <div>
+            <label for="artifact-file">File (optional)</label>
+            <input id="artifact-file" name="file" type="file">
+        </div>
+        <button type="submit">Save Artifact</button>
+    </form>
+</section>
+
+<section>
+    <div class="section-header">
+        <h3>Agents</h3>
+        <span>{{ space.agents|length }} linked</span>
+    </div>
+    {% if space.agents %}
+        {% for agent in space.agents %}
+            <div class="card">
+                <h4>{{ agent.name }}</h4>
+                <p><strong>Model:</strong> {{ agent.model }}</p>
+                {% if agent.description %}
+                    <p>{{ agent.description }}</p>
+                {% endif %}
+                <small>Added {{ agent.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+                <details>
+                    <summary>Edit</summary>
+                    <form method="post" action="/ui/spaces/{{ space.id }}/agents/{{ agent.id }}/update">
+                        <div>
+                            <label for="agent-name-{{ agent.id }}">Name</label>
+                            <input id="agent-name-{{ agent.id }}" name="name" type="text" value="{{ agent.name }}" required>
+                        </div>
+                        <div>
+                            <label for="agent-model-{{ agent.id }}">Model</label>
+                            <input id="agent-model-{{ agent.id }}" name="model" type="text" value="{{ agent.model }}" required>
+                        </div>
+                        <div>
+                            <label for="agent-description-{{ agent.id }}">Description</label>
+                            <textarea id="agent-description-{{ agent.id }}" name="description" rows="3">{{ agent.description or '' }}</textarea>
+                        </div>
+                        <button type="submit">Update</button>
+                    </form>
+                    <form method="post" action="/ui/spaces/{{ space.id }}/agents/{{ agent.id }}/delete" style="margin-top: 0.5rem;">
+                        <button type="submit" style="background:#dc2626">Delete</button>
+                    </form>
+                </details>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty-state">No agents yet. Connect one below to start collaborating.</p>
+    {% endif %}
+
+    <form method="post" action="/ui/spaces/{{ space.id }}/agents">
+        <h4>Add agent</h4>
+        <div>
+            <label for="agent-name">Name</label>
+            <input id="agent-name" name="name" type="text" required placeholder="Research Assistant">
+        </div>
+        <div>
+            <label for="agent-model">Model</label>
+            <input id="agent-model" name="model" type="text" required placeholder="gpt-4o-mini">
+        </div>
+        <div>
+            <label for="agent-description">Description</label>
+            <textarea id="agent-description" name="description" rows="3" placeholder="What does this agent help with?"></textarea>
+        </div>
+        <button type="submit">Add Agent</button>
+    </form>
+</section>
+{% endblock %}

@@ -12,10 +12,10 @@ Each phase builds upon the previous one, enabling iterative growth and integrati
 
 **Tasks**
 - [x] Create project charter and design document  
-- [ ] Set up GitHub repo and folder structure  
-- [ ] Implement basic FastAPI backend  
-- [ ] Add SQLite metadata storage  
-- [ ] Define `Space` and `Artifact` models
+- [x] Set up GitHub repo and folder structure  
+- [x] Implement basic FastAPI backend  
+- [x] Add SQLite metadata storage  
+- [x] Define `Space`, `Artifact`, and `Agent` models
 
 ---
 
@@ -24,7 +24,7 @@ Each phase builds upon the previous one, enabling iterative growth and integrati
 **Target:** Month 2  
 
 **Tasks**
-- [ ] Add `/spaces` and `/agents` API endpoints  
+- [x] Add `/spaces`, `/artifacts`, and `/agents` API endpoints  
 - [ ] Connect to OpenAI or Azure OpenAI  
 - [ ] Implement simple “context-aware thinking” agent  
 - [ ] Store embeddings in local vector DB (PGVector or FAISS)
@@ -36,8 +36,8 @@ Each phase builds upon the previous one, enabling iterative growth and integrati
 **Target:** Month 3  
 
 **Tasks**
-- [ ] Create lightweight frontend (React or Jinja templates)  
-- [ ] Enable space creation and artifact upload  
+- [x] Create lightweight frontend (Jinja templates)  
+- [x] Enable space creation, artifact management, and file upload  
 - [ ] Integrate agent chat UI within each space  
 - [ ] Add local persistence (browser or IndexedDB)
 

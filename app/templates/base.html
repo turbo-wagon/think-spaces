@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title or "Think Spaces" }}</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            font-family: system-ui, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 2rem;
+            background: #f8f9fb;
+            color: #1f2933;
+        }
+        main {
+            max-width: 960px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            padding: 2rem 3rem;
+        }
+        h1, h2, h3 {
+            margin-top: 0;
+            color: #0f172a;
+        }
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        nav a {
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+        .card {
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+        form {
+            display: grid;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+        label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        input[type="text"],
+        textarea,
+        select {
+            padding: 0.7rem;
+            border: 1px solid #cbd5f5;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #ffffff;
+        }
+        button {
+            width: max-content;
+            padding: 0.6rem 1.2rem;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        .empty-state {
+            padding: 1rem 1.5rem;
+            background: #e2e8f0;
+            border-radius: 10px;
+            color: #475569;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <header>
+        <div>
+            <h1>Think Spaces</h1>
+            <p>Manage spaces, artifacts, and agents without touching JSON.</p>
+        </div>
+        <nav>
+            <a href="/ui/spaces">Spaces</a>
+            <a href="/docs">API Docs</a>
+        </nav>
+    </header>
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

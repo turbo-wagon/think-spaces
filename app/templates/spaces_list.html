@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="section-header">
+    <h2>Your Spaces</h2>
+    <span>{{ spaces|length }} total</span>
+</div>
+
+{% if spaces %}
+    {% for space in spaces %}
+        <div class="card">
+            <h3><a href="/ui/spaces/{{ space.id }}">{{ space.name }}</a></h3>
+            {% if space.description %}
+                <p>{{ space.description }}</p>
+            {% else %}
+                <p class="empty-state">No description yet.</p>
+            {% endif %}
+            <small>Created {{ space.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+        </div>
+    {% endfor %}
+{% else %}
+    <p class="empty-state">No spaces yet. Create one below to get started.</p>
+{% endif %}
+
+<section>
+    <h3>Create a new space</h3>
+    <form method="post" action="/ui/spaces">
+        <div>
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" required placeholder="My Think Space">
+        </div>
+        <div>
+            <label for="description">Description (optional)</label>
+            <textarea id="description" name="description" rows="3" placeholder="What is this space for?"></textarea>
+        </div>
+        <button type="submit">Create Space</button>
+    </form>
+</section>
+{% endblock %}
