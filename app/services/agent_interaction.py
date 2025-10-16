@@ -5,7 +5,7 @@ from typing import List, Tuple
 from sqlalchemy.orm import Session
 
 from ..llm import CompletionRequest, registry
-from ..models import Agent, Artifact
+from ..models import Agent, Artifact, Interaction
 from ..schemas import AgentInteractionRequest
 
 
@@ -14,7 +14,7 @@ async def execute_agent_interaction(
 ) -> Tuple[str, dict, List[dict]]:
     provider_cls = registry.get(agent.provider)
     if provider_cls is None:
-        raise RuntimeError(f\"Provider '{agent.provider}' is not available\")
+        raise RuntimeError(f"Provider '{agent.provider}' is not available")
 
     try:
         provider = provider_cls(model=agent.model)
@@ -25,23 +25,38 @@ async def execute_agent_interaction(
 
     context_items = _build_context(agent, payload.context_limit, db)
     context_strings = [
-        _format_context_item(item) for item in context_items if _format_context_item(item)
+        formatted
+        for item in context_items
+        if (formatted := _format_context_item(item))
     ]
+
+    history_items = _build_history(agent, db)
+    history_strings = [_format_history_item(item) for item in history_items]
+
+    system_prompt = payload.system if payload.system is not None else agent.system_prompt
 
     request = CompletionRequest(
         prompt=payload.prompt,
-        system=payload.system,
-        context=context_strings,
-        options={\"model\": agent.model},
+        system=system_prompt,
+        context=[*history_strings, *context_strings],
+        options={"model": agent.model},
     )
 
     completion = await provider.generate(request)
-    return completion.output, dict(completion.metadata), context_items
+    return completion.output, dict(completion.metadata), [
+        {**item, "type": "artifact"} for item in context_items
+    ] + [
+        {
+            "type": "history",
+            "prompt": item.prompt,
+            "response": item.response,
+            "created_at": item.created_at.isoformat(),
+        }
+        for item in history_items
+    ]
 
 
-def _build_context(
-    agent: Agent, limit: int, db: Session
-) -> List[dict]:
+def _build_context(agent: Agent, limit: int, db: Session) -> List[dict]:
     if not limit:
         return []
 
@@ -52,19 +67,45 @@ def _build_context(
         .limit(limit)
         .all()
     )
+
     context = []
     for artifact in artifacts:
         context.append(
             {
-                \"title\": artifact.title,
-                \"summary\": artifact.summary or (artifact.content[:160] + \"…\" if artifact.content else \"\"),
-                \"tags\": artifact.tags,
-                \"artifact_id\": artifact.id,
+                "title": artifact.title,
+                "summary": artifact.summary
+                or (artifact.content[:160] + "…" if artifact.content else ""),
+                "tags": artifact.tags,
+                "artifact_id": artifact.id,
             }
         )
     return context
 
 
 def _format_context_item(item: dict) -> str:
-    parts = [f\"Title: {item['title']}\"] if item.get(\"title\") else []
-    if item.get(\"summary\"):\n+        parts.append(f\"Summary: {item['summary']}\")\n+    if item.get(\"tags\"):\n+        parts.append(\"Tags: \" + \", \".join(item[\"tags\"]))\n+    return \"\\n\".join(parts)\n*** End Patch
+    parts = []
+    if item.get("title"):
+        parts.append(f"Title: {item['title']}")
+    if item.get("summary"):
+        parts.append(f"Summary: {item['summary']}")
+    if item.get("tags"):
+        parts.append("Tags: " + ", ".join(item["tags"]))
+    return "\n".join(parts)
+
+
+def _build_history(agent: Agent, db: Session, limit: int = 3) -> List[Interaction]:
+    return (
+        db.query(Interaction)
+        .filter(Interaction.agent_id == agent.id)
+        .order_by(Interaction.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+
+def _format_history_item(interaction: Interaction) -> str:
+    parts = [
+        f"Previous prompt: {interaction.prompt}",
+        f"Previous response: {interaction.response}",
+    ]
+    return "\n".join(parts)

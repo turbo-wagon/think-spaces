@@ -113,6 +113,9 @@
                 <h4>{{ agent.name }}</h4>
                 <p><strong>Model:</strong> {{ agent.model }}</p>
                 <p><strong>Provider:</strong> {{ agent.provider }}</p>
+                {% if agent.system_prompt %}
+                    <p><strong>System Prompt:</strong> {{ agent.system_prompt }}</p>
+                {% endif %}
                 {% if agent.description %}
                     <p>{{ agent.description }}</p>
                 {% endif %}
@@ -135,6 +138,10 @@
                         <div>
                             <label for="agent-description-{{ agent.id }}">Description</label>
                             <textarea id="agent-description-{{ agent.id }}" name="description" rows="3">{{ agent.description or '' }}</textarea>
+                        </div>
+                        <div>
+                            <label for="agent-system-{{ agent.id }}">System prompt</label>
+                            <textarea id="agent-system-{{ agent.id }}" name="system_prompt" rows="3">{{ agent.system_prompt or '' }}</textarea>
                         </div>
                         <button type="submit">Update</button>
                     </form>
@@ -181,9 +188,16 @@
                                             <ul>
                                                 {% for item in interaction.context %}
                                                     <li>
-                                                        <strong>{{ item.title }}</strong><br>
-                                                        {% if item.summary %}<span>{{ item.summary }}</span><br>{% endif %}
-                                                        {% if item.tags %}<small>Tags: {{ ", ".join(item.tags) }}</small>{% endif %}
+                                                        {% if item.type == 'artifact' %}
+                                                            <strong>{{ item.title }}</strong><br>
+                                                            {% if item.summary %}<span>{{ item.summary }}</span><br>{% endif %}
+                                                            {% if item.tags %}<small>Tags: {{ ", ".join(item.tags) }}</small>{% endif %}
+                                                        {% elif item.type == 'history' %}
+                                                            <strong>Previous Prompt:</strong> {{ item.prompt }}<br>
+                                                            <strong>Previous Response:</strong> {{ item.response }}
+                                                        {% else %}
+                                                            {{ item }}
+                                                        {% endif %}
                                                     </li>
                                                 {% endfor %}
                                             </ul>
@@ -217,6 +231,10 @@
         <div>
             <label for="agent-description">Description</label>
             <textarea id="agent-description" name="description" rows="3" placeholder="What does this agent help with?"></textarea>
+        </div>
+        <div>
+            <label for="agent-system">System prompt</label>
+            <textarea id="agent-system" name="system_prompt" rows="3" placeholder="Default instruction for this agent"></textarea>
         </div>
         <button type="submit">Add Agent</button>
     </form>

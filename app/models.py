@@ -67,6 +67,7 @@ class Agent(Base):
     space_id = Column(Integer, ForeignKey("spaces.id"), nullable=False)
     name = Column(String(100), nullable=False)
     description = Column(Text, nullable=True)
+    system_prompt = Column(Text, nullable=True)
     model = Column(String(100), nullable=False)
     provider = Column(String(50), nullable=False, default="echo")
     created_at = Column(DateTime(timezone=True), server_default=func.now())

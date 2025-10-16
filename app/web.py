@@ -181,11 +181,14 @@ def create_agent(
     model: str = Form(...),
     provider: str = Form("echo"),
     description: str | None = Form(default=None),
+    system_prompt: str | None = Form(default=None),
     db: Session = Depends(get_db),
 ):
     space = db.query(Space).filter(Space.id == space_id).first()
     if space is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Space not found")
+
+    clean_system_prompt = system_prompt.strip() if system_prompt else None
 
     agent = Agent(
         space_id=space_id,
@@ -193,6 +196,7 @@ def create_agent(
         model=model,
         provider=provider,
         description=description,
+        system_prompt=clean_system_prompt,
     )
     db.add(agent)
     db.commit()
@@ -209,6 +213,7 @@ def update_agent_ui(
     model: str = Form(...),
     provider: str = Form(...),
     description: str | None = Form(default=None),
+    system_prompt: str | None = Form(default=None),
     db: Session = Depends(get_db),
 ):
     agent = (
@@ -219,10 +224,13 @@ def update_agent_ui(
     if agent is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
 
+    clean_system_prompt = system_prompt.strip() if system_prompt else None
+
     agent.name = name
     agent.model = model
     agent.provider = provider
     agent.description = description
+    agent.system_prompt = clean_system_prompt
     db.commit()
     return RedirectResponse(
         url=f"/ui/spaces/{space_id}", status_code=status.HTTP_303_SEE_OTHER

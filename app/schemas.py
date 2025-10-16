@@ -66,6 +66,7 @@ class AgentBase(BaseModel):
     model: str = Field(..., max_length=100)
     description: Optional[str] = None
     provider: str = Field(default="echo", max_length=50)
+    system_prompt: Optional[str] = None
 
 
 class AgentCreate(AgentBase):
@@ -77,6 +78,7 @@ class AgentUpdate(BaseModel):
     model: Optional[str] = Field(None, max_length=100)
     description: Optional[str] = None
     provider: Optional[str] = Field(None, max_length=50)
+    system_prompt: Optional[str] = None
 
 
 class AgentRead(AgentBase):

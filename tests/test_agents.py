@@ -1,6 +1,3 @@
-import httpx
-
-
 def test_agent_crud_flow(client):
     space_id = client.post("/spaces", json={"name": "Lab"}).json()["id"]
 
@@ -79,6 +76,8 @@ def test_agent_interaction_echo_provider(client):
     assert "Hello world" in data["output"]
     assert data["provider"] == "echo"
     assert isinstance(data["context"], list)
+    if data["context"]:
+        assert all("type" in item for item in data["context"])
 
 
 def test_openai_provider_without_key_returns_error(client, monkeypatch):
@@ -114,10 +113,12 @@ def test_ollama_provider_connection_error(client, monkeypatch):
         },
     ).json()
 
-    async def fake_post(self, *args, **kwargs):  # type: ignore[override]
-        raise httpx.ConnectError("no connection", request=None)
+    async def fake_generate(self, request):
+        raise RuntimeError("Failed to reach Ollama at http://localhost:11434")
 
-    monkeypatch.setattr(httpx.AsyncClient, "post", fake_post)
+    monkeypatch.setattr(
+        "app.llm.ollama_provider.OllamaProvider.generate", fake_generate
+    )
 
     response = client.post(
         f"/agents/{agent['id']}/interact",
@@ -151,3 +152,4 @@ def test_list_agent_interactions(client):
     items = history.json()
     assert len(items) == 2
     assert items[0]["prompt"] in {"first", "second"}
+    assert isinstance(items[0]["context"], list)
