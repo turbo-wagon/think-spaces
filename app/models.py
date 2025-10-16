@@ -13,6 +13,7 @@ class Space(Base):
     name = Column(String(100), nullable=False, unique=True)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    memory_summary = Column(Text, nullable=True)
 
     artifacts = relationship(
         "Artifact", back_populates="space", cascade="all, delete-orphan"

@@ -13,6 +13,12 @@
         <h3>Artifacts</h3>
         <span>{{ space.artifacts|length }} stored</span>
     </div>
+    {% if space.memory_summary %}
+        <div class="card" style="background:#fefce8;">
+            <h4>Space Memory</h4>
+            <p>{{ space.memory_summary }}</p>
+        </div>
+    {% endif %}
     <form method="get" action="/ui/spaces/{{ space.id }}" style="margin-bottom:1rem;">
         <div style="display:flex; gap:0.5rem; align-items:center;">
             <input name="q" type="text" placeholder="Search artifacts" value="{{ search_query or '' }}" style="flex:1;">
@@ -147,6 +153,9 @@
                     </form>
                     <form method="post" action="/ui/spaces/{{ space.id }}/agents/{{ agent.id }}/delete" style="margin-top: 0.5rem;">
                         <button type="submit" style="background:#dc2626">Delete</button>
+                    </form>
+                    <form method="post" action="/ui/spaces/{{ space.id }}/agents/{{ agent.id }}/summarize" style="margin-top:0.5rem;">
+                        <button type="submit">Summarize Space</button>
                     </form>
                 </details>
 

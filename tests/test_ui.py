@@ -57,6 +57,15 @@ def test_ui_flows(client):
     assert "Hello agent" in detail.text
     assert "Be brief" in detail.text
 
+    response = client.post(
+        f"{location}/agents/1/summarize",
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+
+    detail = client.get(location)
+    assert "Space Memory" in detail.text
+
     # Update artifact
     response = client.post(
         f"{location}/artifacts/1/update",

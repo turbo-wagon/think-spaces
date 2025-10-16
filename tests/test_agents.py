@@ -153,3 +153,7 @@ def test_list_agent_interactions(client):
     assert len(items) == 2
     assert items[0]["prompt"] in {"first", "second"}
     assert isinstance(items[0]["context"], list)
+    client.post(
+        f"/agents/{agent['id']}/interact",
+        json={"prompt": "summarize", "context_limit": 0},
+    )

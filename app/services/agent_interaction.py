@@ -5,7 +5,7 @@ from typing import List, Tuple
 from sqlalchemy.orm import Session
 
 from ..llm import CompletionRequest, registry
-from ..models import Agent, Artifact, Interaction
+from ..models import Agent, Artifact, Interaction, Space
 from ..schemas import AgentInteractionRequest
 
 
@@ -122,3 +122,63 @@ def _format_history_item(interaction: Interaction) -> str:
         f"Previous response: {interaction.response}",
     ]
     return "\n".join(parts)
+
+
+async def summarize_space_state(agent: Agent, db: Session) -> str:
+    provider_cls = registry.get(agent.provider)
+    if provider_cls is None:
+        raise RuntimeError(f"Provider '{agent.provider}' is not available")
+
+    try:
+        provider = provider_cls(model=agent.model)
+    except TypeError:
+        provider = provider_cls()
+    except RuntimeError as exc:
+        raise RuntimeError(str(exc)) from exc
+
+    artifacts = (
+        db.query(Artifact)
+        .filter(Artifact.space_id == agent.space_id)
+        .order_by(Artifact.created_at.desc())
+        .all()
+    )
+
+    lines = []
+    for artifact in artifacts:
+        line = f"- {artifact.title}"
+        if artifact.summary:
+            line += f": {artifact.summary}"
+        lines.append(line)
+
+    interactions = (
+        db.query(Interaction)
+        .filter(Interaction.space_id == agent.space_id)
+        .order_by(Interaction.created_at.desc())
+        .limit(5)
+        .all()
+    )
+
+    history_lines = [
+        f"Prompt: {interaction.prompt}\nResponse: {interaction.response}"
+        for interaction in interactions
+    ]
+
+    prompt = (
+        "Summarize the current Think Space for the user. "
+        "Explain the key artifacts and recent conversation highlights. "
+        "Be concise but cover the essential ideas and next steps.\n\n"
+        "Artifacts:\n" + "\n".join(lines) + "\n\nRecent conversation:\n" + "\n\n".join(history_lines)
+    )
+
+    request = CompletionRequest(
+        prompt=prompt,
+        system=(
+            agent.system_prompt
+            or "You are a helpful summarizer capturing the state of this Think Space."
+        ),
+        context=[],
+        options={"model": agent.model},
+    )
+
+    completion = await provider.generate(request)
+    return completion.output

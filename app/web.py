@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session, selectinload
 from .db import get_db
 from .models import Agent, Artifact, Interaction, Space
 from .schemas import AgentInteractionRequest
-from .services.agent_interaction import execute_agent_interaction
+from .services.agent_interaction import execute_agent_interaction, summarize_space_state
 from .nlp_utils import build_summary_and_tags
 from .storage import remove_upload, save_upload
 
@@ -234,6 +234,34 @@ def update_agent_ui(
     db.commit()
     return RedirectResponse(
         url=f"/ui/spaces/{space_id}", status_code=status.HTTP_303_SEE_OTHER
+    )
+
+
+@router.post("/spaces/{space_id}/agents/{agent_id}/summarize")
+async def summarize_space_ui(
+    space_id: int,
+    agent_id: int,
+    db: Session = Depends(get_db),
+):
+    agent = (
+        db.query(Agent)
+        .filter(Agent.id == agent_id, Agent.space_id == space_id)
+        .first()
+    )
+    if agent is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
+
+    summary = await summarize_space_state(agent, db)
+    space = db.query(Space).filter(Space.id == space_id).first()
+    if space is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Space not found")
+
+    space.memory_summary = summary
+    db.commit()
+
+    return RedirectResponse(
+        url=f"/ui/spaces/{space_id}?agent={agent_id}#agent-{agent_id}",
+        status_code=status.HTTP_303_SEE_OTHER,
     )
 
 
