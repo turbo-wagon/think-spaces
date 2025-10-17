@@ -25,7 +25,7 @@ Each phase builds upon the previous one, enabling iterative growth and integrati
 
 **Tasks**
 - [x] Add `/spaces`, `/artifacts`, and `/agents` API endpoints  
-- [ ] Connect pluggable LLM providers (OpenAI, Azure, Anthropic, local)  
+- [x] Connect pluggable LLM providers (echo, OpenAI, Ollama)  
 - [ ] Implement simple “context-aware thinking” agent  
 - [ ] Store embeddings in local vector DB (PGVector or FAISS)
 
@@ -37,8 +37,8 @@ Each phase builds upon the previous one, enabling iterative growth and integrati
 
 **Tasks**
 - [x] Create lightweight frontend (Jinja templates)  
-- [x] Enable space creation, artifact management, and file upload  
-- [ ] Integrate agent chat UI within each space  
+- [x] Enable space creation, artifact management, file upload, and space memory  
+- [x] Integrate agent chat UI with history within each space  
 - [ ] Add local persistence (browser or IndexedDB)
 
 ---

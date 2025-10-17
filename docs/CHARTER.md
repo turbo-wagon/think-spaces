@@ -129,7 +129,7 @@ User
 | **Frontend** | Next.js 15 (App Router)        | Modern React framework |
 | **UI**       | Tailwind CSS + shadcn/ui       | Elegant minimal styling |
 | **Database** | Supabase (Postgres + pgvector) | Data + embeddings    |
-| **LLM Providers** | Adapter-friendly (OpenAI, Azure, Anthropic, local) | Contextual responses |
+| **LLM Providers** | Adapter-friendly (OpenAI, Anthropic, Azure, Ollama, echo) | Contextual responses |
 | **Auth (Optional)** | Supabase Auth           | Private user spaces  |
 | **Hosting**  | Vercel (frontend), Supabase (backend) | Fully free-tier deploy |
 

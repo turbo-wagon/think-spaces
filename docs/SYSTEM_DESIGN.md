@@ -103,7 +103,8 @@
     
 - **EmbeddingService** — provider-agnostic wrapper (initial adapter: OpenAI `text-embedding-3-small`; extend to Azure, Anthropic, or local models).
     
-- **LLMService** — agent abstraction supporting multiple providers (OpenAI, Azure OpenAI, Anthropic, local GGUF via Ollama) behind a common interface. OpenAI adapters expect `OPENAI_API_KEY`; Ollama uses `OLLAMA_BASE_URL` (default `http://localhost:11434`).
+- **LLMService** — agent abstraction supporting multiple providers (echo, OpenAI, Ollama) behind a common interface. OpenAI adapters expect `OPENAI_API_KEY`; Ollama uses `OLLAMA_BASE_URL` (default `http://localhost:11434`).
+- **NLPService** — lightweight summariser/keyword extractor to enrich artifact metadata for retrieval and space memory.
 - **NLPService** — lightweight summariser/keyword extractor to enrich artifact metadata for retrieval.
     
 - **ScraperService** — lightweight readability extraction (server-side fetch); guards for CORS/robots.
