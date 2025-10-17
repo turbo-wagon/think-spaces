@@ -102,7 +102,7 @@ class AgentInteractionResponse(BaseModel):
     output: str
     provider: str
     metadata: dict[str, Any] = Field(default_factory=dict)
-    context: list[dict[str, Any]] = Field(default_factory=list)
+    context: dict[str, Any] = Field(default_factory=dict)
 
 
 class InteractionRead(BaseModel):
@@ -114,7 +114,7 @@ class InteractionRead(BaseModel):
     response: str
     provider: str
     model: str
-    context: list[dict[str, Any]] = Field(default_factory=list)
+    context: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

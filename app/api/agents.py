@@ -91,7 +91,9 @@ async def interact_with_agent(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
 
     try:
-        output, metadata, context_items = await execute_agent_interaction(agent, payload, db)
+        output, metadata, artifacts_ctx, history_ctx, system_prompt_used = await execute_agent_interaction(
+            agent, payload, db
+        )
     except RuntimeError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -102,12 +104,16 @@ async def interact_with_agent(
         agent_id=agent.id,
         space_id=agent.space_id,
         prompt=payload.prompt,
-        system_prompt=payload.system,
+        system_prompt=system_prompt_used,
         response=output,
         provider=agent.provider,
         model=agent.model,
     )
-    interaction.context = context_items
+    interaction.context = {
+        "artifacts": artifacts_ctx,
+        "history": history_ctx,
+        "system_prompt": system_prompt_used,
+    }
     db.add(interaction)
     db.commit()
     db.refresh(interaction)
@@ -116,7 +122,11 @@ async def interact_with_agent(
         output=output,
         metadata=metadata,
         provider=agent.provider,
-        context=context_items,
+        context={
+            "artifacts": artifacts_ctx,
+            "history": history_ctx,
+            "system_prompt": system_prompt_used,
+        },
     )
 
 

@@ -194,25 +194,36 @@
                                     {% endif %}
                                     <p><strong>Prompt:</strong> {{ interaction.prompt }}</p>
                                     <p><strong>Response:</strong> {{ interaction.response }}</p>
-                                    {% if interaction.context %}
+                                    {% set ctx = interaction.context %}
+                                    {% if ctx %}
                                         <details>
                                             <summary>View context</summary>
-                                            <ul>
-                                                {% for item in interaction.context %}
-                                                    <li>
-                                                        {% if item.type == 'artifact' %}
+                                            {% if ctx.system_prompt %}
+                                                <p><strong>System prompt used:</strong> {{ ctx.system_prompt }}</p>
+                                            {% endif %}
+                                            {% if ctx.artifacts %}
+                                                <h6>Artifact context</h6>
+                                                <ul>
+                                                    {% for item in ctx.artifacts %}
+                                                        <li>
                                                             <strong>{{ item.title }}</strong><br>
                                                             {% if item.summary %}<span>{{ item.summary }}</span><br>{% endif %}
                                                             {% if item.tags %}<small>Tags: {{ ", ".join(item.tags) }}</small>{% endif %}
-                                                        {% elif item.type == 'history' %}
-                                                            <strong>Previous Prompt:</strong> {{ item.prompt }}<br>
-                                                            <strong>Previous Response:</strong> {{ item.response }}
-                                                        {% else %}
-                                                            {{ item }}
-                                                        {% endif %}
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                            {% if ctx.history %}
+                                                <h6>Conversation history</h6>
+                                                <ul>
+                                                    {% for item in ctx.history %}
+                                                        <li>
+                                                            <strong>Prompt:</strong> {{ item.prompt }}<br>
+                                                            <strong>Response:</strong> {{ item.response }}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
                                         </details>
                                     {% endif %}
                                 </details>

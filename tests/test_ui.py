@@ -47,7 +47,7 @@ def test_ui_flows(client):
         data={
             "prompt": "Hello agent",
             "system": "Be brief",
-            "context_limit": 0,
+            "context_limit": 1,
         },
         follow_redirects=False,
     )
@@ -56,6 +56,7 @@ def test_ui_flows(client):
     detail = client.get(location)
     assert "Hello agent" in detail.text
     assert "Be brief" in detail.text
+    assert "Artifact context" in detail.text
 
     response = client.post(
         f"{location}/agents/1/summarize",

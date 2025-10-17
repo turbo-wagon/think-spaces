@@ -75,9 +75,9 @@ def test_agent_interaction_echo_provider(client):
     data = response.json()
     assert "Hello world" in data["output"]
     assert data["provider"] == "echo"
-    assert isinstance(data["context"], list)
-    if data["context"]:
-        assert all("type" in item for item in data["context"])
+    assert isinstance(data["context"], dict)
+    assert "artifacts" in data["context"]
+    assert "history" in data["context"]
 
 
 def test_openai_provider_without_key_returns_error(client, monkeypatch):
@@ -152,7 +152,9 @@ def test_list_agent_interactions(client):
     items = history.json()
     assert len(items) == 2
     assert items[0]["prompt"] in {"first", "second"}
-    assert isinstance(items[0]["context"], list)
+    assert isinstance(items[0]["context"], dict)
+    assert "artifacts" in items[0]["context"]
+    assert "history" in items[0]["context"]
     client.post(
         f"/agents/{agent['id']}/interact",
         json={"prompt": "summarize", "context_limit": 0},

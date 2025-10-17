@@ -11,7 +11,7 @@ from ..schemas import AgentInteractionRequest
 
 async def execute_agent_interaction(
     agent: Agent, payload: AgentInteractionRequest, db: Session
-) -> Tuple[str, dict, List[dict]]:
+) -> Tuple[str, dict, List[dict], List[dict], str]:
     default_system_prompt = (
         "You are a Think Spaces companion. Always weave in the most relevant "
         "artifacts from the current space (use their titles, summaries, or tags "
@@ -32,10 +32,10 @@ async def execute_agent_interaction(
     except RuntimeError as exc:
         raise RuntimeError(str(exc)) from exc
 
-    context_items = _build_context(agent, payload.context_limit, db)
+    context_artifacts = _build_context(agent, payload.context_limit, db)
     context_strings = [
         formatted
-        for item in context_items
+        for item in context_artifacts
         if (formatted := _format_context_item(item))
     ]
 
@@ -56,17 +56,15 @@ async def execute_agent_interaction(
     )
 
     completion = await provider.generate(request)
-    return completion.output, dict(completion.metadata), [
-        {**item, "type": "artifact"} for item in context_items
-    ] + [
+    history_payload = [
         {
-            "type": "history",
             "prompt": item.prompt,
             "response": item.response,
             "created_at": item.created_at.isoformat(),
         }
         for item in history_items
     ]
+    return completion.output, dict(completion.metadata), context_artifacts, history_payload, system_prompt
 
 
 def _build_context(agent: Agent, limit: int, db: Session) -> List[dict]:
@@ -98,7 +96,7 @@ def _build_context(agent: Agent, limit: int, db: Session) -> List[dict]:
 def _format_context_item(item: dict) -> str:
     parts = []
     if item.get("title"):
-        parts.append(f"Title: {item['title']}")
+        parts.append(f"Artifact: {item['title']}")
     if item.get("summary"):
         parts.append(f"Summary: {item['summary']}")
     if item.get("tags"):

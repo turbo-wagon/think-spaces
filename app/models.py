@@ -97,16 +97,21 @@ class Interaction(Base):
     space = relationship("Space", back_populates="interactions")
 
     @property
-    def context(self) -> list[dict]:
+    def context(self) -> dict:
         if not self.context_json:
-            return []
+            return {}
         try:
-            return json.loads(self.context_json)
+            data = json.loads(self.context_json)
+            if isinstance(data, dict):
+                return data
+            if isinstance(data, list):
+                return {"items": data}
+            return {}
         except (json.JSONDecodeError, TypeError):
-            return []
+            return {}
 
     @context.setter
-    def context(self, value: list[dict] | None) -> None:
+    def context(self, value: dict | list | None) -> None:
         if value is None:
             self.context_json = None
         else:
