@@ -22,22 +22,49 @@ Build a framework that combines **human intelligence** and **machine intelligenc
 ## ✨ Current Capabilities
 - FastAPI backend with SQLite persistence for spaces, artifacts, and agents.
 - Automatic artifact summaries and keyword tags to enrich agent context.
-- Pluggable LLM providers (`echo`, `openai`, `ollama`) wired through a shared adapter interface.
+- Pluggable LLM providers (`echo`, `openai`, `ollama`, `groq`) wired through a shared adapter interface.
 - HTML UI for managing spaces, artifacts (including file uploads), and agents.
+- Dynamic chat interface with keyboard shortcuts and interactive elements.
 
 ---
 
 ## ⚙️ Providers & API Keys
-- The backend ships with an `echo` provider for local testing (no external calls).
-- To enable OpenAI models, set `OPENAI_API_KEY` in your environment before starting the app:
 
+### Built-in Providers
+
+| Provider | Type | Setup | Models |
+|----------|------|-------|--------|
+| **echo** | Testing | No setup needed | Echoes prompts back |
+| **openai** | Cloud API | `export OPENAI_API_KEY="sk-..."` | GPT-4, GPT-4o-mini, etc. |
+| **groq** | Cloud API (Free) | `export GROQ_API_KEY="gsk_..."` | Llama 3.1 (70B, 8B), Mixtral, Gemma 2 |
+| **ollama** | Local | Install Ollama, optionally set `OLLAMA_BASE_URL` | Any Ollama model |
+
+### Quick Start Examples
+
+**With Groq (Recommended for free, fast inference):**
+```bash
+# Get your free API key at https://console.groq.com
+export GROQ_API_KEY="gsk_..."
+uvicorn app.main:app --reload
+
+# In the UI, create an agent with:
+# - Provider: groq
+# - Model: llama-3.1-70b-versatile
+```
+
+**With OpenAI:**
 ```bash
 export OPENAI_API_KEY="sk-..."
 uvicorn app.main:app --reload
 ```
 
-- To use Ollama locally, install it and start the service (defaults to `http://localhost:11434`). You can override the endpoint with `OLLAMA_BASE_URL`.
+**With Ollama (local):**
+```bash
+# Install and start Ollama
+ollama serve
+# In the UI, use provider: ollama, model: llama3.2
+```
 
-- Additional providers can be added via the pluggable adapter pattern in `app/llm/`.
+Additional providers can be added via the pluggable adapter pattern in `app/llm/`.
 
 ---

@@ -161,6 +161,10 @@ Create a `.env` file in the project root:
 # OpenAI API Key (optional, for GPT models)
 OPENAI_API_KEY=sk-your-key-here
 
+# Groq API Key (optional, FREE fast inference)
+# Get your key at https://console.groq.com
+GROQ_API_KEY=gsk_your-key-here
+
 # Ollama Base URL (optional, for local models)
 # If Ollama is on Proxmox host, use host IP
 OLLAMA_BASE_URL=http://192.168.1.100:11434
@@ -168,6 +172,25 @@ OLLAMA_BASE_URL=http://192.168.1.100:11434
 # Custom port (optional, default: 8000)
 PORT=8000
 ```
+
+### Recommended: Use Groq for Free, Fast Inference
+
+Groq provides **free API access** to powerful open-source models with **extremely fast inference** (150+ tokens/sec):
+
+1. **Get your free API key:** https://console.groq.com
+2. **Add to `.env`:**
+   ```bash
+   GROQ_API_KEY=gsk_your-key-here
+   ```
+3. **In the UI, create an agent with:**
+   - Provider: `groq`
+   - Model: `llama-3.1-70b-versatile` (recommended) or `llama-3.1-8b-instant` (faster)
+
+**Available Groq Models:**
+- `llama-3.1-70b-versatile` - Most capable, great reasoning
+- `llama-3.1-8b-instant` - Fastest, good for simple tasks
+- `mixtral-8x7b-32768` - Large context window
+- `gemma2-9b-it` - Google's Gemma 2
 
 ### Using Ollama on Proxmox Host
 

@@ -15,6 +15,11 @@ try:  # noqa: SIM105
 except Exception:  # pragma: no cover - optional dependency guard
     pass
 
+try:  # noqa: SIM105
+    from . import groq_provider  # noqa: F401
+except Exception:  # pragma: no cover - optional dependency guard
+    pass
+
 __all__ = [
     "ProviderRegistry",
     "registry",
