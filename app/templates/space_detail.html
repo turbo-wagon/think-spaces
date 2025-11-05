@@ -206,6 +206,12 @@
                                     {% endif %}
                                     <p><strong>Prompt:</strong> {{ interaction.prompt }}</p>
                                     <p><strong>Response:</strong> {{ interaction.response }}</p>
+                                    <button
+                                        class="save-artifact-btn"
+                                        onclick="saveInteractionAsArtifact({{ space.id }}, {{ interaction.id }}, this)"
+                                        style="margin-top:0.5rem; padding:0.25rem 0.75rem; font-size:0.85rem; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer;">
+                                        💾 Save as artifact
+                                    </button>
                                     {% set ctx = interaction.context %}
                                     {% if ctx %}
                                         <details>
@@ -390,6 +396,43 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+async function saveInteractionAsArtifact(spaceId, interactionId, button) {
+    const originalText = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '⏳ Saving...';
+
+    try {
+        const response = await fetch(`/ui/spaces/${spaceId}/interactions/${interactionId}/save-as-artifact`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save as artifact');
+        }
+
+        const data = await response.json();
+        button.innerHTML = '✅ Saved!';
+        button.style.background = '#6b7280';
+
+        // Reload the page after a short delay to show the new artifact
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+
+    } catch (error) {
+        button.innerHTML = '❌ Failed';
+        button.style.background = '#dc2626';
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.style.background = '#10b981';
+            button.disabled = false;
+        }, 2000);
+    }
 }
 </script>
 {% endblock %}

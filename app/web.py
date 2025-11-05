@@ -174,6 +174,54 @@ def delete_artifact(space_id: int, artifact_id: int, db: Session = Depends(get_d
     )
 
 
+@router.post("/spaces/{space_id}/interactions/{interaction_id}/save-as-artifact")
+def save_interaction_as_artifact(
+    space_id: int,
+    interaction_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Convert an agent interaction response into a permanent artifact."""
+    interaction = (
+        db.query(Interaction)
+        .filter(Interaction.id == interaction_id, Interaction.space_id == space_id)
+        .first()
+    )
+    if interaction is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Interaction not found")
+
+    # Create artifact from interaction
+    title = f"Agent insight: {interaction.prompt[:60]}..." if len(interaction.prompt) > 60 else f"Agent insight: {interaction.prompt}"
+    content = interaction.response
+
+    artifact = Artifact(
+        space_id=space_id,
+        title=title,
+        content=content,
+    )
+
+    # Generate summary and tags
+    summary, tags = build_summary_and_tags(title, content)
+    artifact.summary = summary or None
+    artifact.tags = tags
+
+    db.add(artifact)
+    db.commit()
+    db.refresh(artifact)
+
+    # Check if AJAX request
+    if request.headers.get("accept") == "application/json" or "application/json" in request.headers.get("accept", ""):
+        return {
+            "success": True,
+            "artifact_id": artifact.id,
+            "message": "Saved as artifact"
+        }
+
+    return RedirectResponse(
+        url=f"/ui/spaces/{space_id}", status_code=status.HTTP_303_SEE_OTHER
+    )
+
+
 @router.post("/spaces/{space_id}/agents")
 def create_agent(
     space_id: int,

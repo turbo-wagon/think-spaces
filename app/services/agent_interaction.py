@@ -104,7 +104,7 @@ def _format_context_item(item: dict) -> str:
     return "\n".join(parts)
 
 
-def _build_history(agent: Agent, db: Session, limit: int = 3) -> List[Interaction]:
+def _build_history(agent: Agent, db: Session, limit: int = 10) -> List[Interaction]:
     return (
         db.query(Interaction)
         .filter(Interaction.agent_id == agent.id)
