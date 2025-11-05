@@ -196,10 +196,10 @@ Groq provides **free API access** to powerful open-source models with **extremel
    ```
 3. **In the UI, create an agent with:**
    - Provider: `groq`
-   - Model: `llama-3.1-70b-versatile` (recommended) or `llama-3.1-8b-instant` (faster)
+   - Model: `llama-3.3-70b-versatile` (recommended) or `llama-3.1-8b-instant` (faster)
 
 **Available Groq Models:**
-- `llama-3.1-70b-versatile` - Most capable, great reasoning
+- `llama-3.3-70b-versatile` - Latest, most capable, great reasoning
 - `llama-3.1-8b-instant` - Fastest, good for simple tasks
 - `mixtral-8x7b-32768` - Large context window
 - `gemma2-9b-it` - Google's Gemma 2

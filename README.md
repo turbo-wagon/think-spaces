@@ -36,7 +36,7 @@ Build a framework that combines **human intelligence** and **machine intelligenc
 |----------|------|-------|--------|
 | **echo** | Testing | No setup needed | Echoes prompts back |
 | **openai** | Cloud API | `export OPENAI_API_KEY="sk-..."` | GPT-4, GPT-4o-mini, etc. |
-| **groq** | Cloud API (Free) | `export GROQ_API_KEY="gsk_..."` | Llama 3.1 (70B, 8B), Mixtral, Gemma 2 |
+| **groq** | Cloud API (Free) | `export GROQ_API_KEY="gsk_..."` | Llama 3.3 (70B), Llama 3.1 (8B), Mixtral, Gemma 2 |
 | **ollama** | Local | Install Ollama, optionally set `OLLAMA_BASE_URL` | Any Ollama model |
 
 ### Quick Start Examples
@@ -64,7 +64,7 @@ uvicorn app.main:app --reload
 
 # In the UI, create an agent with:
 # - Provider: groq
-# - Model: llama-3.1-70b-versatile
+# - Model: llama-3.3-70b-versatile
 ```
 
 **With OpenAI:**

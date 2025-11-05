@@ -22,7 +22,7 @@ class GroqProvider(LLMProvider):
     """LLM provider that calls Groq's API (OpenAI-compatible).
 
     Groq provides extremely fast inference for open-source models like:
-    - llama-3.1-70b-versatile
+    - llama-3.3-70b-versatile
     - llama-3.1-8b-instant
     - mixtral-8x7b-32768
     - gemma2-9b-it
@@ -31,7 +31,7 @@ class GroqProvider(LLMProvider):
     """
 
     name: str = "groq"
-    model: str = "llama-3.1-70b-versatile"
+    model: str = "llama-3.3-70b-versatile"
     api_key: Optional[str] = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
