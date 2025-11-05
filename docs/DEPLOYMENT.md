@@ -155,8 +155,18 @@ Follow same steps as Option A, step 3.
 
 ### Environment Variables
 
-Create a `.env` file in the project root:
+The application automatically loads environment variables from a `.env` file in the project root.
 
+**Setup:**
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Edit .env with your values
+nano .env  # or vim, emacs, etc.
+```
+
+**Example `.env` file:**
 ```bash
 # OpenAI API Key (optional, for GPT models)
 OPENAI_API_KEY=sk-your-key-here
@@ -172,6 +182,8 @@ OLLAMA_BASE_URL=http://192.168.1.100:11434
 # Custom port (optional, default: 8000)
 PORT=8000
 ```
+
+**Security Note:** The `.env` file is automatically excluded from Git (via `.gitignore`). Never commit API keys to version control.
 
 ### Recommended: Use Groq for Free, Fast Inference
 

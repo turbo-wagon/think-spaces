@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
@@ -7,6 +8,9 @@ from .api import agents, artifacts, spaces
 from .db import create_db_and_tables
 from .storage import ensure_upload_dir
 from . import web
+
+# Load environment variables from .env file if present
+load_dotenv()
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):

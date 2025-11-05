@@ -41,6 +41,21 @@ Build a framework that combines **human intelligence** and **machine intelligenc
 
 ### Quick Start Examples
 
+**Using .env file (Recommended):**
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Edit .env and add your API keys
+# GROQ_API_KEY=gsk_...
+# OPENAI_API_KEY=sk_...
+
+# Start the app (keys loaded automatically)
+uvicorn app.main:app --reload
+```
+
+**Or use environment variables:**
+
 **With Groq (Recommended for free, fast inference):**
 ```bash
 # Get your free API key at https://console.groq.com
