@@ -284,6 +284,7 @@ def delete_agent_ui(space_id: int, agent_id: int, db: Session = Depends(get_db))
 
 @router.post("/spaces/{space_id}/agents/{agent_id}/chat")
 async def chat_with_agent(
+    request: Request,
     space_id: int,
     agent_id: int,
     prompt: str = Form(...),
@@ -329,6 +330,19 @@ async def chat_with_agent(
 
     db.add(interaction)
     db.commit()
+
+    # Check if this is an AJAX request
+    if request.headers.get("accept") == "application/json" or "application/json" in request.headers.get("accept", ""):
+        return {
+            "output": output,
+            "provider": agent.provider,
+            "metadata": metadata,
+            "context": {
+                "artifacts": artifacts_ctx,
+                "history": history_ctx,
+                "system_prompt": system_prompt_used,
+            }
+        }
 
     return RedirectResponse(
         url=f"/ui/spaces/{space_id}?agent={agent_id}#agent-{agent_id}",
